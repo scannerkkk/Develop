@@ -5,7 +5,31 @@
 #define cn(x) tr[x].cnt
 #define va(x) tr[x].v
 using namespace std;
-const int N = 2e5 + 10;
+const int N = 2e6 + 10;
+char *p1, *p2, buf[100000];
+#define nc() (p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, 100000, stdin), p1 == p2) ? EOF : *p1++)
+inline int read()
+{
+    int x = 0, f = 1;
+    char ch = nc();
+    while (ch < 48 || ch > 57)
+    {
+        if (ch == '-')
+            f = -1;
+        ch = nc();
+    }
+    while (ch >= 48 && ch <= 57)
+        x = x * 10 + ch - 48, ch = nc();
+    return x * f;
+}
+void write(int x)
+{
+    if (x < 0)
+        putchar('-'), x = -x;
+    if (x > 9)
+        write(x / 10);
+    putchar(x % 10 + '0');
+}
 struct node
 {
     int s[2];
@@ -40,15 +64,13 @@ inline void splay(int x, int k)
         }
         rotate(x);
     }
-    k == 0 ? root = x : root = root;
+    k == 0 ? root = x : root;
 }
 inline void find(int v)
 {
     int x = root;
     while (son(x, v > va(x)) && v != va(x))
-    {
         x = son(x, v > va(x));
-    }
     splay(x, 0);
 }
 inline int get_pre(int v)
@@ -59,9 +81,7 @@ inline int get_pre(int v)
         return x;
     x = son(x, 0);
     while (son(x, 1))
-    {
         x = son(x, 1);
-    }
     return x;
 }
 inline int get_suf(int v)
@@ -69,14 +89,10 @@ inline int get_suf(int v)
     find(v);
     int x = root;
     if (va(x) > v)
-    {
         return x;
-    }
     x = son(x, 1);
     while (son(x, 0))
-    {
         x = son(x, 0);
-    }
     return x;
 }
 inline void del(int v)
@@ -85,23 +101,34 @@ inline void del(int v)
     splay(pre, 0), splay(suf, pre);
     int num = son(suf, 0);
     if (cn(num) > 1)
-    {
         cn(num)--, splay(num, 0);
-    }
     else
-    {
         son(suf, 0) = 0, splay(suf, 0);
-    }
 }
 inline int get_rk(int v)
 {
-    find(v);
-    return sz(son(root, 0));
+    int x = root, res = 0;
+    while (x)
+    {
+        if (va(x) == v)
+        {
+            res += sz(son(x, 0));
+            splay(x, 0);
+            return res;
+        }
+        else if (va(x) > v)
+            x = son(x, 0);
+        else
+            res += sz(son(x, 0)) + cn(x), x = son(x, 1);
+    }
+    if (va(x) == v)
+        splay(x, 0);
+    else
+        splay(fa(x), 0);
+    return res;
 }
 inline int get_va(int k)
 {
-    //插入了哨兵所以要+1
-    k++;
     int x = root;
     while (true)
     {
@@ -114,13 +141,9 @@ inline int get_va(int k)
         else
         {
             if (sz(y) >= k)
-            {
                 x = y;
-            }
             else
-            {
                 break;
-            }
         }
     }
     splay(x, 0);
@@ -148,14 +171,13 @@ inline void insert(int v)
 int main()
 {
     //哨兵
-    insert(-1e9), insert(1e9);
-    int m;
-    scanf("%d", &m);
-    while (m--)
+    insert(-2e9), insert(2e9);
+    int n;
+    n = read();
+    while (n--)
     {
         int op, v;
-        scanf("%d%d", &op, &v);
-        // cout << "debug:" << m << endl;
+        op = read(), v = read();
         if (op == 1)
         {
             insert(v);
@@ -170,7 +192,7 @@ int main()
         }
         else if (op == 4)
         {
-            printf("%d\n", get_va(v));
+            printf("%d\n", get_va(v + 1));
         }
         else if (op == 5)
         {
