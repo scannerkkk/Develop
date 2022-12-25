@@ -99,6 +99,7 @@ void solve()
     scanf("%lld",&x);
     //除了询问某个数第一次出现的位置，其余操作全都要先rebuild
     // rebuild();
+    //求第k大或k小的时候位置要判断是否有0
     printf("%lld\n",ask_firstX(n,x));
 }
 int main()
