@@ -1,46 +1,47 @@
-#include "bits/stdc++.h"
-using namespace std;
-using ll = long long;
-using ull = unsigned long long;
-ll ksc(ll x,ll y,ll p) 
+ll qmul(ll a, ll b, ll mod) //快速乘
 {
-    ll z = ((long double) x / p * y);
-    ll t = (ull) x * y - (ull)z * p;
-    return (t + p) % p;
+    ll c = (ld)a / mod * b;
+    ll res = (ull)a * b - (ull)c * mod;
+    return (res + mod) % mod;
 }
-ll ksm(ll a,ll k,ll p) 
+ll qpow(ll a, ll n, ll mod) //快速幂
 {
     ll res = 1;
-    while(k) {
-        if(k & 1) res = ksc(res,a,p);
-        a = ksc(a,a,p);
-        k >>= 1;
+    while (n)
+    {
+        if (n & 1)
+            res = qmul(res, a, mod);
+        a = qmul(a, a, mod);
+        n >>= 1;
     }
     return res;
 }
-//Miller Rabin随机筛
-inline bool MR(ll x,ll p) 
+bool MR(ll n) // Miller Rabin Test
 {
-    //费马小定理判断同余方程是否成立
-    if(ksm(x,p - 1,p) != 1)  return 0;
-    ll y = x - 1,z;
-    while(!(y & 1)) {
-        y >>= 1;z = ksm(x,y,p);
-        if(z != 1 && z != p - 1) return 0;
-        if(z == p - 1) return 1;
+    if (n < 3 || n % 2 == 0)
+        return n == 2; //特判
+    ll u = n - 1, t = 0;
+    while (u % 2 == 0)
+        u /= 2, ++t;
+    ll ud[] = {2, 325, 9375, 28178, 450775, 9780504, 1795265022};
+    for (ll a : ud)
+    {
+        ll v = qpow(a, u, n);
+        if (v == 1 || v == n - 1 || v == 0)
+            continue;
+        for (int j = 1; j <= t; j++)
+        {
+            v = qmul(v, v, n);
+            if (v == n - 1 && j != t)
+            {
+                v = 1;
+                break;
+            } //出现一个n-1，后面都是1，直接跳出
+            if (v == 1)
+                return 0; //这里代表前面没有出现n-1这个解，二次检验失败
+        }
+        if (v != 1)
+            return 0; // Fermat检验
     }
     return 1;
-}
-inline bool prime(ll x)
-{
-    if(x == 2 || x == 3 || x == 5 || x == 7 || x == 11 
-    || x == 13 || x == 17 || x == 19 || x == 23 || x == 41) 
-        return 1;
-    return MR(2,x) && MR(3,x) && MR(5,x) && MR(7,x) && MR(11,x)
-        && MR(13,x) && MR(17,x) && MR(19,x) && MR(23,x) && MR(41,x);
-}
-int main()
-{
-
-    return 0;
 }
