@@ -1,60 +1,59 @@
 #include "bits/stdc++.h"
 #define fi first
 #define se second
-#define ull unsigned long long
-#define PUU pair<unsigned long long, unsigned long long>
+#define mp make_pair
+#define ll long long
 using namespace std;
-const int N = 1e5 + 10;
-const int mod1 = 1e9 + 7, mod2 = 998244353;
-const int base1 = 131, base2 = 13331;
-ull p1[N], p2[N];
-ull v1[N], v2[N];
-map<PUU, int> mp;
-void init(int n)
+const int N = 2e6 + 10;
+const ll mod1 = 1000000033;
+const ll mod2 = 1000000103;
+typedef pair<int,int> hashv;
+
+hashv operator + (hashv a,hashv b)
 {
-    p1[0] = p2[0] = 1;
-    for (int i = 1; i <= n; i++)
-    {
-        p1[i] = p1[i - 1] * base1 % mod1;
-        p2[i] = p2[i - 1] * base2 % mod2;
-    }
+	int c1 = a.fi + b.fi,c2 = a.se + b.se;
+	if(c1 >= mod1) c1 -= mod1;
+	if(c2 >= mod2) c2 -= mod2;
+	return mp(c1,c2);
 }
-PUU getHash(int l, int r)
+hashv operator - (hashv a,hashv b)
 {
-    PUU v;
-    v.fi = v1[r] - v1[l - 1] * p1[r - l + 1] % mod1;
-    v.se = v2[r] - v2[l - 1] * p2[r - l + 1] % mod2;
-    return v;
+	int c1 = a.fi - b.fi,c2 = a.se - b.se;
+	if(c1 < 0) c1 += mod1;
+	if(c2 < 0) c2 += mod2;
+	return mp(c1,c2);
 }
-void doubleHash(string s)
+hashv operator * (hashv a,hashv b)
 {
-    for (int i = 1; i <= s.size(); i++)
-    {
-        v1[i] = (v1[i - 1] * base1 + s[i - 1]) % mod1;
-        v2[i] = (v2[i - 1] * base2 + s[i - 1]) % mod2;
-    }
-    return;
+	int c1 = (ll)a.fi * b.fi % mod1,c2 = (ll) a.se * b.se % mod2;
+	return mp(c1,c2);
 }
-void solve()
-{
-    init(10000);
-    int n;
-    cin >> n;
-    for (int i = 1; i <= n; i++)
-    {
-        string s;
-        cin >> s;
-        doubleHash(s);
-        mp[getHash(1, s.size())]++;
-    }
-    cout << mp.size() << endl;
-}
+
+hashv pw[N],s1[N],s2[N];
+char s[N];
 int main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(0), cout.tie(0);
-    int T = 1;
-    while (T--)
-        solve();
-    return 0;
+	int n;
+	scanf("%d",&n);
+	n *= 2;
+	scanf("%s",s + 1);
+	hashv base = mp(10331,100313);
+	pw[0] = mp(1,1);
+	for(int i = 1;i <= n;i++) {
+		pw[i] = pw[i - 1] * base;
+		s1[i] = s1[i - 1] * base + mp(s[i],s[i]);
+	}
+	for(int i = n;i >= 1;i--) s2[i] = s2[i + 1] * base + mp(s[i],s[i]);
+	for(int i = 0;i <= n / 2;i++) {
+		hashv t1 = s1[i] * pw[n / 2 - i] + (s1[n] - s1[i + n / 2] * pw[n / 2 - i]);
+		hashv t2 = s2[i + 1] - s2[i + 1 + n / 2] * pw[n / 2];
+		if(t1 == t2) {
+			for(int j = n / 2 - 1;j >= 0;j--) printf("%c",s[i + j + 1]);
+			puts("");
+			printf("%d\n",i);
+			exit(0);
+		}
+	}
+	puts("-1");
+	return 0;
 }
