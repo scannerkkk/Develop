@@ -1,2 +1,6 @@
 # Develop
-Just a Test for my knowledge
+C/C++实现五子棋
+1.普通对局
+2.残局实现
+3.人机实现
+4.悔棋/计分
